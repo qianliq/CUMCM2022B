@@ -175,13 +175,13 @@ def main():
     tolerance = 1e-3
     step_factor = 0.3  # 位置调整步长因子
     
-    print('=== 无人机编队调整算法 ===')
-    print('算法：迭代 + 贪心优化')
-    print(f'最大迭代次数：{max_iterations}')
-    print(f'收敛阈值：{tolerance}')
+    print('=== UAV Formation Adjustment Algorithm ===')
+    print('Algorithm: Iteration + Greedy Optimization')
+    print(f'Max Iterations: {max_iterations}')
+    print(f'Convergence Threshold: {tolerance}')
     print()
     
-    print(f"{'迭代':<4} {'最优发射机组合':<25} {'总误差(m)':<12} {'平均误差(m)':<12}")
+    print(f"{'Iter':<4} {'Best Transmitter Combo':<25} {'Total Error(m)':<12} {'Avg Error(m)':<12}")
     print('-' * 60)
     
     error_history = []
@@ -291,7 +291,7 @@ def main():
         
         # 检查收敛
         if total_error < tolerance:
-            print(f'\n算法在第{iteration}次迭代后收敛！')
+            print(f'\nAlgorithm converged after {iteration} iterations!')
             break
     
     # --- 输出最终结果 ---
@@ -310,13 +310,13 @@ def main():
         error = np.linalg.norm(current_positions[idx] - final_ideal_positions[i])
         final_errors.append(error)
     
-    print('\n=== 调整完成 ===')
-    print(f'最终理想圆半径：{final_ideal_radius:.2f} m')
-    print(f'平均位置误差：{np.mean(final_errors):.6f} m')
-    print(f'最大位置误差：{np.max(final_errors):.6f} m')
+    print('\n=== Adjustment Complete ===')
+    print(f'Final Ideal Circle Radius: {final_ideal_radius:.2f} m')
+    print(f'Average Position Error: {np.mean(final_errors):.6f} m')
+    print(f'Maximum Position Error: {np.max(final_errors):.6f} m')
     
-    print('\n=== 最终无人机位置 ===')
-    print(f"{'编号':<6} {'初始位置(ρ,θ°)':<20} {'最终位置(ρ,θ°)':<20} {'到理想位置距离(m)':<20}")
+    print('\n=== Final UAV Positions ===')
+    print(f"{'ID':<6} {'Initial Position(ρ,θ°)':<20} {'Final Position(ρ,θ°)':<20} {'Distance to Ideal(m)':<20}")
     print('-' * 75)
     
     for i in range(10):
@@ -326,7 +326,7 @@ def main():
         if i == 0:  # FY00
             print(f"{drone_ids[i]:<6} ({initial_polar[0]:.2f}, {initial_polar[1]:.2f}°)"
                   f"    ({final_polar[0]:.2f}, {final_polar[1]:.2f}°)"
-                  f"    {'圆心' :>15}")
+                  f"    {'Center' :>15}")
         else:  # FY01-FY09
             error_distance = final_errors[i-1]
             print(f"{drone_ids[i]:<6} ({initial_polar[0]:.2f}, {initial_polar[1]:.2f}°)"
@@ -339,18 +339,18 @@ def main():
 
 def visualize_results(initial_positions_polar, final_positions, 
                      final_ideal_radius, error_history, drone_ids):
-    """可视化调整结果"""
+    """Visualize adjustment results"""
     
     fig = plt.figure(figsize=(15, 10))
     
-    # 子图1：初始位置
+    # Subplot 1: Initial positions
     ax1 = plt.subplot(2, 2, 1)
-    ax1.set_title("初始无人机位置", fontsize=14)
+    ax1.set_title("Initial UAV Positions", fontsize=14)
     
     # FY00
-    ax1.scatter(0, 0, s=120, c='red', marker='o', label='FY00 (圆心)', zorder=5)
+    ax1.scatter(0, 0, s=120, c='red', marker='o', label='FY00 (Center)', zorder=5)
     
-    # FY01-FY09初始位置
+    # FY01-FY09 initial positions
     initial_cart = [polar_to_cartesian(r, theta) for r, theta in initial_positions_polar[1:]]
     initial_x = [pos[0] for pos in initial_cart]
     initial_y = [pos[1] for pos in initial_cart]
@@ -358,16 +358,16 @@ def visualize_results(initial_positions_polar, final_positions,
     ax1.scatter(initial_x, initial_y, s=80, c='blue', marker='^', 
                label='FY01-FY09', alpha=0.7, zorder=4)
     
-    # 标注无人机编号
+    # Label UAV IDs
     for i, (x, y) in enumerate(initial_cart):
         ax1.annotate(drone_ids[i+1], (x, y), xytext=(5, 5), 
                     textcoords='offset points', fontsize=9)
     
-    # 画理想圆
+    # Draw ideal circle
     theta = np.linspace(0, 2*np.pi, 1000)
     ideal_x = 100 * np.cos(theta)
     ideal_y = 100 * np.sin(theta)
-    ax1.plot(ideal_x, ideal_y, 'k--', alpha=0.5, label='理想圆(R=100m)')
+    ax1.plot(ideal_x, ideal_y, 'k--', alpha=0.5, label='Ideal Circle (R=100m)')
     
     ax1.set_xlim(-130, 130)
     ax1.set_ylim(-130, 130)
@@ -377,31 +377,31 @@ def visualize_results(initial_positions_polar, final_positions,
     ax1.grid(True, alpha=0.3)
     ax1.set_aspect('equal')
     
-    # 子图2：最终位置
+    # Subplot 2: Final positions
     ax2 = plt.subplot(2, 2, 2)
-    ax2.set_title("调整后无人机位置", fontsize=14)
+    ax2.set_title("Adjusted UAV Positions", fontsize=14)
     
     # FY00
     ax2.scatter(final_positions[0,0], final_positions[0,1], s=120, c='red', 
-               marker='o', label='FY00 (圆心)', zorder=5)
+               marker='o', label='FY00 (Center)', zorder=5)
     
-    # FY01-FY09最终位置
+    # FY01-FY09 final positions
     final_x = final_positions[1:, 0]
     final_y = final_positions[1:, 1]
     
     ax2.scatter(final_x, final_y, s=80, c='green', marker='*', 
-               label='FY01-FY09 (调整后)', alpha=0.8, zorder=4)
+               label='FY01-FY09 (Adjusted)', alpha=0.8, zorder=4)
     
-    # 标注编号
+    # Label IDs
     for i, (x, y) in enumerate(zip(final_x, final_y)):
         ax2.annotate(drone_ids[i+1], (x, y), xytext=(5, 5), 
                     textcoords='offset points', fontsize=9)
     
-    # 画最终理想圆
+    # Draw final ideal circle
     final_ideal_x = final_ideal_radius * np.cos(theta)
     final_ideal_y = final_ideal_radius * np.sin(theta)
     ax2.plot(final_ideal_x, final_ideal_y, 'k--', alpha=0.5, 
-            label=f'最终理想圆(R={final_ideal_radius:.1f}m)')
+            label=f'Final Ideal Circle (R={final_ideal_radius:.1f}m)')
     
     ax2.set_xlim(-130, 130)
     ax2.set_ylim(-130, 130)
@@ -411,22 +411,22 @@ def visualize_results(initial_positions_polar, final_positions,
     ax2.grid(True, alpha=0.3)
     ax2.set_aspect('equal')
     
-    # 子图3：误差收敛曲线
+    # Subplot 3: Error convergence curve
     ax3 = plt.subplot(2, 2, 3)
-    ax3.set_title("误差收敛过程", fontsize=14)
+    ax3.set_title("Error Convergence Process", fontsize=14)
     
     iterations = range(1, len(error_history) + 1)
     ax3.plot(iterations, error_history, 'o-', color='purple', linewidth=2, markersize=6)
-    ax3.set_xlabel("迭代次数")
-    ax3.set_ylabel("总误差 (m)")
+    ax3.set_xlabel("Iteration")
+    ax3.set_ylabel("Total Error (m)")
     ax3.grid(True, alpha=0.3)
-    ax3.set_yscale('log')  # 对数坐标更好显示收敛过程
+    ax3.set_yscale('log')  # Log scale for better convergence visualization
     
-    # 子图4：误差分布
+    # Subplot 4: Error distribution
     ax4 = plt.subplot(2, 2, 4)
-    ax4.set_title("各无人机位置误差", fontsize=14)
+    ax4.set_title("Individual UAV Position Errors", fontsize=14)
     
-    # 计算每架无人机的误差
+    # Calculate individual UAV errors
     ideal_angles = np.array([i * 40.0 for i in range(9)])
     final_ideal_positions = np.array([polar_to_cartesian(final_ideal_radius, angle) 
                                     for angle in ideal_angles])
@@ -437,13 +437,13 @@ def visualize_results(initial_positions_polar, final_positions,
         individual_errors.append(error)
     
     bars = ax4.bar(range(1, 10), individual_errors, color='lightcoral', alpha=0.7)
-    ax4.set_xlabel("无人机编号")
-    ax4.set_ylabel("位置误差 (m)")
+    ax4.set_xlabel("UAV ID")
+    ax4.set_ylabel("Position Error (m)")
     ax4.set_xticks(range(1, 10))
     ax4.set_xticklabels([f'FY{i:02d}' for i in range(1, 10)], rotation=45)
     ax4.grid(True, alpha=0.3)
     
-    # 在柱状图上显示数值
+    # Display values on bars
     for i, bar in enumerate(bars):
         height = bar.get_height()
         ax4.text(bar.get_x() + bar.get_width()/2., height + 0.001,
