@@ -1,0 +1,8 @@
+logs/
+venv/
+*.log
+.idea/
+dist/
+
+test.py
+
